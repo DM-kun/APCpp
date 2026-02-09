@@ -1,0 +1,39 @@
+name: Build Linux
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build-linux:
+    name: Build
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential cmake
+
+      - name: Configure
+        run: |
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+
+      - name: Build
+        run: |
+          cd build
+          cmake --build . -j$(nproc)
+
+      - name: Package artifacts
+        run: |
+          mkdir artifact
+          cp build/*.so artifact/
+          cp build/*.a artifact/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: APCpp-linux
+          path: artifact/*

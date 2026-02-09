@@ -1,0 +1,72 @@
+name: Build macOS
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build-macos-arm:
+    name: Build (ARM)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          brew install cmake
+
+      - name: Configure
+        run: |
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+
+      - name: Build
+        run: |
+          cd build
+          cmake --build . -j$(sysctl -n hw.ncpu)
+
+      - name: Package artifacts
+        run: |
+          mkdir artifact
+          cp build/*.dylib artifact/
+          cp build/*.a artifact/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: APCpp-macos-arm
+          path: artifact/*
+
+  build-macos-intel:
+    name: Build (Intel)
+    runs-on: macos-15-intel
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          brew install cmake
+
+      - name: Configure
+        run: |
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+
+      - name: Build
+        run: |
+          cd build
+          cmake --build . -j$(sysctl -n hw.ncpu)
+
+      - name: Package artifacts
+        run: |
+          mkdir artifact
+          cp build/*.dylib artifact/
+          cp build/*.a artifact/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: APCpp-macos-intel
+          path: artifact/*
