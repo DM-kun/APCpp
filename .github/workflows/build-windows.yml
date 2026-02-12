@@ -3,8 +3,8 @@ name: Build Windows
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
-  build-windows-32:
-    name: Build (x32)
+  build-windows:
+    name: Build
     runs-on: windows-latest
     defaults:
       run:
@@ -44,49 +44,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: APCpp-windows-32
-          path: artifact/*
-
-  build-windows-64:
-    name: Build (x64)
-    runs-on: windows-latest
-    defaults:
-      run:
-        shell: msys2 {0}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - uses: msys2/setup-msys2@v2
-        with:
-          msystem: UCRT64
-          update: true
-          install: >
-            git
-            make
-            unzip
-            mingw-w64-ucrt-x86_64-gcc
-            mingw-w64-ucrt-x86_64-cmake
-
-      - name: Configure
-        run: |
-          mkdir build
-          cd build
-          cmake .. -G"MSYS Makefiles" -DWIN32=0 -DMSYS=1
-
-      - name: Build
-        run: |
-          cd build
-          cmake --build .
-
-      - name: Package artifacts
-        run: |
-          mkdir artifact
-          cp build/*.dll artifact/
-          cp build/*.a artifact/
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: APCpp-windows-64
+          name: APCpp-windows
           path: artifact/*
